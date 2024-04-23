@@ -1,11 +1,41 @@
-const dummyList: string[][] = [
-  ["McDonald's", "$", "3/5"],
-  ["Five Guys", "$$", "3.5/5"],
-  ["Emmy Squared Pizzeria", "$$$", "4/5"],
-  ["Eleven Madison Park", "$$$$", "4.9/5"],
-];
+// Node imports
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+// Project imports
+import Restaurant from "../../models/Restaurant";
+
+// TODO create reusable API access utilities
+const BACKEND_URL = "http://127.0.0.1:8000/";
 
 function RestaurantTable() {
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [restaurants, setRestaurants] = useState([]);
+
+  useEffect(() => {
+    axios.get(BACKEND_URL).then(
+      (response) => {
+        setIsLoaded(true);
+        setRestaurants(response.data);
+        console.log(response.data);
+      },
+      (error) => {
+        setError(error);
+      },
+    );
+  }, []);
+
+  if (error) {
+    console.log(error);
+    return <div>Error, check console</div>;
+  }
+
+  if (!isLoaded) {
+    return <h1>Loading...</h1>;
+  }
+
+  console.log(restaurants);
   return (
     <table className="table">
       <thead>
@@ -16,11 +46,11 @@ function RestaurantTable() {
         </tr>
       </thead>
       <tbody className="table-group-divider">
-        {dummyList.map((item) => (
+        {(restaurants as Restaurant[]).map((item) => (
           <tr>
-            <td>{item[0]}</td>
-            <td>{item[1]}</td>
-            <td>{item[2]}</td>
+            <td>{item.name}</td>
+            <td>{item.priceTier}</td>
+            <td>{item.userRating}</td>
           </tr>
         ))}
       </tbody>
