@@ -1,7 +1,22 @@
+from contextlib import asynccontextmanager
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from pydantic import BaseModel
+
+from dotenv import load_dotenv
+
+from db.mongo import WalkenMongoClient
+
+load_dotenv()
+conn_str = os.environ["WALKEN_CONN_STR"]
+
+print(conn_str)
+
+dbClient = WalkenMongoClient(conn_str)
+for item in dbClient.get_restaurants():
+    print(item)
 
 class RestaurantModel(BaseModel):
     name: str
@@ -14,6 +29,11 @@ sampleData = [
     RestaurantModel(name="Emmy Squared Pizzeria", priceTier="$$$", userRating="4/5"),
     RestaurantModel(name="Eleven Madison Park", priceTier="$$$$", userRating="4.9/5")
 ]
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    pass
+
 
 app = FastAPI()
 
